@@ -1,35 +1,20 @@
-from itertools import chain
-
-from zope.component import getUtilitiesFor
-from zope.component import getMultiAdapter
-
-import zope.interface
-from zope.event import notify
-
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-
 from Acquisition import aq_inner
-from zExceptions import Forbidden
-
-from Products.CMFCore.utils import getToolByName
-from Products.statusmessages.interfaces import IStatusMessage
-
-from plone.app.vocabularies.users import UsersSource
-from plone.app.vocabularies.groups import GroupsSource
-
-from plone.memoize.instance import memoize
-from plone.memoize.instance import clearafter
-
-from plone.app.workflow import PloneMessageFactory as _
-from plone.app.workflow.browser.sharing import SharingView
+from collective.groupspace.roles.interfaces import \
+    ILocalGroupSpacePASRolesChangeEvent
 from collective.groupspace.roles.interfaces import IRolesPageRole
-
 from Globals import PersistentMapping
-
+from plone.app.vocabularies.groups import GroupsSource
+from plone.app.vocabularies.users import UsersSource
+from plone.app.workflow.browser.sharing import SharingView
+from plone.memoize.instance import clearafter
+from plone.memoize.instance import memoize
+from Products.CMFCore.utils import getToolByName
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from zope.component import getUtilitiesFor
 from zope.component.interfaces import ObjectEvent
-from zope.app.container.interfaces import IObjectMovedEvent
+from zope.event import notify
+import zope.interface
 
-from collective.groupspace.roles.interfaces import ILocalGroupSpacePASRolesChangeEvent
 
 class LocalGroupSpacePASRolesChangeEvent(ObjectEvent):
     """
@@ -37,7 +22,7 @@ class LocalGroupSpacePASRolesChangeEvent(ObjectEvent):
     """
     zope.interface.implements(ILocalGroupSpacePASRolesChangeEvent)
 
-    def __init__(self, object, old_user_roles, new_user_roles, old_group_roles, 
+    def __init__(self, object, old_user_roles, new_user_roles, old_group_roles,
                  new_group_roles, request=None):
         ObjectEvent.__init__(self, object)
         self.old_user_roles = old_user_roles
@@ -45,50 +30,51 @@ class LocalGroupSpacePASRolesChangeEvent(ObjectEvent):
         self.old_group_roles = old_group_roles
         self.new_group_roles = new_group_roles
         self.request = request
-        
+
+
 class RolesView(SharingView):
     """
     The sharing view already does the heavy lifting of searching users and
     groups, so we just tap into the existing implementation.
-    
+
     Reindexing the security is not necessary in the case of this roles tab,
     so we return False in the update_inherit and update_role_settings methods.
     """
-    
+
     template = ViewPageTemplateFile('groupspace_roles.pt')
-    
+
     def update_inherit(self, status=True, reindex=True):
         """
         Not used in the roles form
         """
-        return False # Such as to not reindex the security
+        return False  # Such as to not reindex the security
 
-    # View    
+    # View
     @memoize
     def roles(self):
         """Get a list of roles that can be managed.
-        
+
         Returns a list of dicts with keys:
-        
+
             - id
             - title
         """
         context = aq_inner(self.context)
         portal_membership = getToolByName(context, 'portal_membership')
-        
+
         pairs = []
-        
+
         for name, utility in getUtilitiesFor(IRolesPageRole):
             permission = utility.required_permission
-            if permission is None or portal_membership.checkPermission(permission, context):
-                pairs.append(dict(id = name, title = utility.title))
-                
+            if permission is None or portal_membership.checkPermission(
+                    permission, context):
+                pairs.append(dict(id=name, title=utility.title))
+
         pairs.sort(key=lambda x: x["id"])
         return pairs
 
-        
     # helper functions
-    
+
     @memoize
     def existing_role_settings(self):
         """Get current settings for users and groups that have already got
@@ -97,13 +83,13 @@ class RolesView(SharingView):
         Returns a list of dicts as per role_settings()
         """
         context = aq_inner(self.context)
-        
+
         # Compile a list of user and group information with their roles
         info = []
- 
+
         # Only accept known roles in the result list
         knownroles = self.roles()
-                      
+
         if context.user_roles:
             userssource = UsersSource(context)
             for user_id, user_roles in context.user_roles.items():
@@ -120,11 +106,13 @@ class RolesView(SharingView):
                         roles[role['id']] = False
                 if roles:
                     # Only add the user info if he has any role
-                    info.append({'type': 'user',
-                                 'id': user_id,
-                                 'title': user.getProperty('fullname', None) or user.getId(),
-                                 'roles': roles,
-                            })
+                    info.append({
+                        'type': 'user',
+                        'id': user_id,
+                        'title': (user.getProperty('fullname', None) or
+                                  user.getId()),
+                        'roles': roles,
+                    })
 
         if context.group_roles:
             groupssource = GroupsSource(context)
@@ -142,23 +130,25 @@ class RolesView(SharingView):
                         roles[role['id']] = False
                 if roles:
                     # Only add the group info if it has any role
-                    info.append({'type': 'group',
-                                 'id': group_id,
-                                 'title': group.getProperty('title', None) or group.getId(),
-                                 'roles': roles,
-                                })
+                    info.append({
+                        'type': 'group',
+                        'id': group_id,
+                        'title': (group.getProperty('title', None) or
+                                  group.getId()),
+                        'roles': roles,
+                    })
 
         return info
-                            
+
     @clearafter
     def update_role_settings(self, new_settings, reindex=False):
         """Update the role settings.
-        
+
         new_settings is a list of dicts with keys id, for the user/group id;
         type, being either 'user' or 'group'; and roles, containing the list
         of role ids that are set.
         """
-        context = aq_inner(self.context)            
+        context = aq_inner(self.context)
 
         # Collect all roles for users and groups according to the new settings
         user_roles = {}
@@ -166,7 +156,7 @@ class RolesView(SharingView):
 
         # Make sure to only set roles that are known
         knownroles = self.roles()
-                        
+
         for principal in new_settings:
             roles = []
             for role in knownroles:
@@ -178,10 +168,10 @@ class RolesView(SharingView):
                 # No need to store an empty list of roles
                 if principal['type'] == 'user':
                     # The roles for this user will be stored
-                    user_roles[principal['id']]=roles
+                    user_roles[principal['id']] = roles
                 elif principal['type'] == 'group':
                     # The roles for this user will be stored
-                    group_roles[principal['id']]=roles
+                    group_roles[principal['id']] = roles
 
         # Store changes for LocalGroupSpacePASRolesChangeEvent
         old_user_roles = {}
@@ -198,11 +188,11 @@ class RolesView(SharingView):
             # Keep track of the changes for LocalGroupSpacePASRolesChangeEvent
             old_user_roles = context.user_roles.copy()
             new_user_roles = user_roles.copy()
-            
+
             # Instead of going through the changes individually, just set them
             context.user_roles.clear()
             context.user_roles.update(user_roles)
-        
+
         # Take care to only set any values if something has really changed
         if context.group_roles != group_roles:
             if context.group_roles is None:
@@ -218,19 +208,20 @@ class RolesView(SharingView):
             context.group_roles.update(group_roles)
 
         # The user can decide whether to send the notifications or not
-        if old_user_roles or new_user_roles or old_group_roles or new_group_roles:
+        if (
+            old_user_roles or new_user_roles or old_group_roles or
+            new_group_roles
+        ):
             # In case there are some changes, trigger the event
             event = LocalGroupSpacePASRolesChangeEvent(self.context,
-                                                       old_user_roles, 
-                                                       new_user_roles, 
-                                                       old_group_roles, 
+                                                       old_user_roles,
+                                                       new_user_roles,
+                                                       old_group_roles,
                                                        new_group_roles,
                                                        self.request)
             notify(event)
-        
+
         # Just reindex allowedLocalUsersAndGroups
         context.reindexObject(idxs=['allowedLocalUsersAndGroups'])
-        
-        return False # Such as to not reindex the security
 
-
+        return False  # Such as to not reindex the security

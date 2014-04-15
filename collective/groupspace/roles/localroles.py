@@ -3,14 +3,15 @@ Local roles for PAS
 """
 
 from borg.localrole.interfaces import ILocalRoleProvider
-from zope.interface import implements
-from zope.component import adapts
 from collective.groupspace.roles import ROLES_MESSAGE_FACTORY as _
-from collective.groupspace.roles.interfaces import IRolesPageRole
 from collective.groupspace.roles.config import ROLE_ASSIGNMENT_PERMISSION
+from collective.groupspace.roles.interfaces import ILocalGroupSpacePASRoles
+from collective.groupspace.roles.interfaces import IRolesPageRole
 from plone.app.workflow import PloneMessageFactory as _p
 from plone.indexer.decorator import indexer
-from collective.groupspace.roles.interfaces import ILocalGroupSpacePASRoles
+from zope.component import adapts
+from zope.interface import implements
+
 
 @indexer(ILocalGroupSpacePASRoles)
 def allowedLocalUsersAndGroups(obj):
@@ -20,51 +21,55 @@ def allowedLocalUsersAndGroups(obj):
 
     The ILocalGroupSpacePASRoles must be implemented by the objects, so
     the user_roles and group_roles attributes must be present.
-    
-    The actual roles assigned to the users are not checked, and it is 
+
+    The actual roles assigned to the users are not checked, and it is
     assumed that any user that has any role will be allowed.
-    
+
     This method returns a tuple of the form:
-    
+
     ('user:sampleuser1', 'user:sampleuser2', 'group:samplegroup1'}
     """
     result = []
     if not obj.user_roles is None:
         for user_id in obj.user_roles.keys():
-            result.append('user:%s' % user_id)            
+            result.append('user:%s' % user_id)
     if not obj.group_roles is None:
         for group_id in obj.group_roles.keys():
-            result.append('group:%s' % group_id)            
+            result.append('group:%s' % group_id)
     return tuple(result)
+
 
 class GroupAdminRole(object):
     """Admin role for groupspaces"""
     implements(IRolesPageRole)
-    
+
     title = _(u"title_can_manage", default=u"Can manage")
     required_permission = ROLE_ASSIGNMENT_PERMISSION
-    
+
+
 class GroupEditorRole(object):
     """Editor role for groupspaces"""
     implements(IRolesPageRole)
-    
+
     title = _p(u"title_can_edit", default=u"Can edit")
     required_permission = ROLE_ASSIGNMENT_PERMISSION
-    
+
+
 class GroupContributorRole(object):
     """Contributor role for groupspaces"""
     implements(IRolesPageRole)
-    
+
     title = _p(u"title_can_add", default=u"Can add")
     required_permission = ROLE_ASSIGNMENT_PERMISSION
-    
+
 
 class GroupReaderRole(object):
     """Reader role for groupspaces"""
     implements(IRolesPageRole)
-    
+
     title = _p(u"title_can_view", default=u"Can view")
     required_permission = ROLE_ASSIGNMENT_PERMISSION
+
 
 class LocalRoles(object):
     """Provide a local role manager for group spaces that allows querying the
@@ -94,7 +99,7 @@ class LocalRoles(object):
                 for role in group_roles:
                     yield (group_id, role)
 
-    def getRoles(self, principal_id):            
+    def getRoles(self, principal_id):
         """Returns an iterable of roles granted to the specified user object
         """
         roles = set()
@@ -102,7 +107,7 @@ class LocalRoles(object):
             self.context.user_roles
             self.context.group_roles
         except AttributeError:
-            return list(roles)        
+            return list(roles)
         if not self.context.user_roles is None:
             if principal_id in self.context.user_roles.keys():
                 for role in self.context.user_roles[principal_id]:
@@ -111,12 +116,13 @@ class LocalRoles(object):
             if principal_id in self.context.group_roles.keys():
                 for role in self.context.group_roles[principal_id]:
                     roles.add(role)
-        return list(roles)    
+        return list(roles)
+
 
 def setPolicyDefaultLocalRoles(obj, event):
     """
-    Some local workflow policies only work when certain local roles are 
-    given by default. A common case is that the search only works when 
+    Some local workflow policies only work when certain local roles are
+    given by default. A common case is that the search only works when
     at least one local role is present that gives the View permission.
     """
     # Just one role is needed to give the View permission
@@ -150,9 +156,9 @@ def _local_roles_to_remove_and_add(event):
     groups.update(set(event.new_group_roles.keys()))
 
     remove = []
-    add = []    
+    add = []
     for user in users:
-        if not event.new_user_roles.has_key(user):
+        if not user in event.new_user_roles:
             # The user has all his roles removed, so add it to the list
             remove.append(user)
         else:
@@ -160,7 +166,7 @@ def _local_roles_to_remove_and_add(event):
             add.append(user)
 
     for group in groups:
-        if not event.new_group_roles.has_key(group):
+        if not group in event.new_group_roles:
             # The group has all its roles removed, so add it to the list
             remove.append(group)
         else:

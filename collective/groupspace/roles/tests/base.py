@@ -7,7 +7,8 @@ products installed.
 
 from Testing import ZopeTestCase
 
-# Import PloneTestCase - this registers more products with Zope as a side effect
+# Import PloneTestCase - this registers more products with Zope as a
+# side effect
 from Products.PloneTestCase.PloneTestCase import PloneTestCase
 from Products.PloneTestCase.PloneTestCase import FunctionalTestCase
 from Products.PloneTestCase.PloneTestCase import setupPloneSite
@@ -25,50 +26,66 @@ from plone.app.workflow import PloneMessageFactory as _
 # a portlets profile.
 setupPloneSite()
 
+
 class PloneTestCase(PloneTestCase):
     """Base class for integration tests.
     """
-    
+
+
 class ManagerRole(object):
-    implements(IRolesPageRole)    
+    implements(IRolesPageRole)
     title = _(u"title_can_manage", default=u"Can manage")
-    required_permission = "Change local roles"        
-    
+    required_permission = "Change local roles"
+
+
 class FunctionalTestCase(FunctionalTestCase):
     """Base class for functional for integration tests
     """
 
     def afterSetUp(self):
+        self.portal.acl_users._doAddUser(
+            'manager', 'secret', ['Manager'], [])
+        self.portal.acl_users._doAddUser(
+            'member', 'secret', ['Member'], [])
+        self.portal.acl_users._doAddUser(
+            'owner', 'secret', ['Owner'], [])
+        self.portal.acl_users._doAddUser(
+            'reviewer', 'secret', ['Reviewer'], [])
+        self.portal.acl_users._doAddUser(
+            'editor', 'secret', ['Editor'], [])
+        self.portal.acl_users._doAddUser(
+            'reader', 'secret', ['Reader'], [])
 
-        self.portal.acl_users._doAddUser('manager', 'secret', ['Manager',],[])
-        self.portal.acl_users._doAddUser('member', 'secret', ['Member',],[])
-        self.portal.acl_users._doAddUser('owner', 'secret', ['Owner',],[])
-        self.portal.acl_users._doAddUser('reviewer', 'secret', ['Reviewer',],[])
-        self.portal.acl_users._doAddUser('editor', 'secret', ['Editor',],[])
-        self.portal.acl_users._doAddUser('reader', 'secret', ['Reader',],[])
-        
-        self.portal.acl_users._doAddUser('groupadmin', 'secret', ['Member',],[])
-        self.portal.acl_users._doAddUser('groupeditor', 'secret', ['Member',],[])
-        self.portal.acl_users._doAddUser('groupcontributor', 'secret', ['Member',],[])
-        self.portal.acl_users._doAddUser('groupreader', 'secret', ['Member',],[]) 
+        self.portal.acl_users._doAddUser(
+            'groupadmin', 'secret', ['Member'], [])
+        self.portal.acl_users._doAddUser(
+            'groupeditor', 'secret', ['Member'], [])
+        self.portal.acl_users._doAddUser(
+            'groupcontributor', 'secret', ['Member'], [])
+        self.portal.acl_users._doAddUser(
+            'groupreader', 'secret', ['Member'], [])
 
         self.workflow = self.portal.portal_workflow
-        self.workflow.setChainForPortalTypes(('Document',),('one_state_workflow',))    
-        self.workflow.setChainForPortalTypes(('Folder',),('one_state_workflow',))    
-        self.workflow.setChainForPortalTypes(('News Item',),('one_state_workflow',))    
-        self.workflow.setChainForPortalTypes(('Event',),('one_state_workflow',))    
-        
+        self.workflow.setChainForPortalTypes(
+            ('Document',), ('one_state_workflow',))
+        self.workflow.setChainForPortalTypes(
+            ('Folder',), ('one_state_workflow',))
+        self.workflow.setChainForPortalTypes(
+            ('News Item',), ('one_state_workflow',))
+        self.workflow.setChainForPortalTypes(
+            ('Event',), ('one_state_workflow',))
+
         self.setRoles(('Manager',))
 
         self.portal.invokeFactory('Folder', 'folder')
         self.folder = self.portal.folder
-        
+
         # Make the folder provide the IGroupSpace interface
         self.folder.user_roles = PersistentMapping()
         self.folder.group_roles = PersistentMapping()
         alsoProvides(self.folder, ILocalGroupSpacePASRoles)
         self.folder.reindexObject()
-        
+
         self.folder.invokeFactory('News Item', 'newsitem1')
         self.newsitem = self.folder.newsitem1
         self.folder.invokeFactory('Event', 'event1')
@@ -80,6 +97,8 @@ class FunctionalTestCase(FunctionalTestCase):
         # Provide a role for the roles page
         sm = self.portal.getSiteManager()
         if not sm.queryUtility(IRolesPageRole, name='Manager'):
-            sm.registerUtility(ManagerRole(),
-                       IRolesPageRole,
-                       'Manager')
+            sm.registerUtility(
+                ManagerRole(),
+                IRolesPageRole,
+                'Manager'
+            )

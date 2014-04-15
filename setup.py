@@ -6,6 +6,7 @@ import os
 from setuptools import find_packages
 from setuptools import setup
 
+
 def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
@@ -15,28 +16,30 @@ long_description = (
     read('README.txt')
     + '\n\n' +
     read('CHANGES.txt')
-    )
+)
 
-tests_require=['zope.testing']
+tests_require = ['zope.testing']
 
-setup(name='collective.groupspace.roles',
+setup(
+    name='collective.groupspace.roles',
     version=version,
-    description="Plone collective.groupspace view for assigning roles to participants",
+    description=("Plone collective.groupspace view for assigning roles to "
+                 "participants"),
     long_description=long_description,
     classifiers=[
-      "Development Status :: 5 - Production/Stable",
-      "Environment :: Web Environment",
-      "Framework :: Plone",
-      "Framework :: Zope2",
-      "Intended Audience :: Developers",
-      "License :: OSI Approved :: GNU General Public License (GPL)",
-      "Operating System :: OS Independent",
-      "Programming Language :: Python",
-      "Topic :: Communications :: Email",
-      "Topic :: Internet :: WWW/HTTP :: Dynamic Content",        
-      "Topic :: Office/Business :: Groupware",
-      "Topic :: Software Development :: Libraries :: Python Modules",
-      ],
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Web Environment",
+        "Framework :: Plone",
+        "Framework :: Zope2",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: GNU General Public License (GPL)",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Topic :: Communications :: Email",
+        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+        "Topic :: Office/Business :: Groupware",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+    ],
     keywords='groupspace, roles, pas, borg.localrole, grufspaces',
     author='Maik Roeder',
     author_email='roeder@berg.net',
@@ -62,4 +65,4 @@ setup(name='collective.groupspace.roles',
     paster_plugins.txt = setuptools.command.egg_info:write_arg
     """,
     paster_plugins = ["ZopeSkel"],
-    )
+)

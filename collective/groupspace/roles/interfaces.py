@@ -1,7 +1,8 @@
-from zope.interface import Interface
-from zope.interface import Attribute
 from zope import schema
 from zope.component.interfaces import IObjectEvent
+from zope.interface import Attribute
+from zope.interface import Interface
+
 
 class ILocalGroupSpacePASRoles(Interface):
     """
@@ -14,22 +15,24 @@ class ILocalGroupSpacePASRoles(Interface):
     user_roles = Attribute("User Roles")
     group_roles = Attribute("Group Roles")
 
+
 class ILocalGroupSpacePASRolesChangeEvent(IObjectEvent):
     """
-    An event signalling that the local roles are changing.   
+    An event signalling that the local roles are changing.
     """
     old_user_roles = Attribute("The old user roles for the object.")
     new_user_roles = Attribute("The new user roles for the object.")
     old_group_roles = Attribute("The old group roles for the object.")
     new_group_roles = Attribute("The new group roles for the object.")
 
+
 class IRolesPageRole(Interface):
     """
     A named utility providing information about roles that are managed by the
     roles page.
-    
+
     Utility names should correspond to the role name.
-    
+
     A user will be able to delegate the given role if a utility can be found
     and the user has the required_permission (or it's None).
     """
@@ -40,4 +43,3 @@ class IRolesPageRole(Interface):
         title=u"Permission required to manage this local role",
         required=False
     )
-

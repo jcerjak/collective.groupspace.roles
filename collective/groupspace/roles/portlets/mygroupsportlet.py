@@ -1,21 +1,19 @@
 """
 My groups portlet
 """
-from types import StringTypes
-
-from zope.interface import implements
 
 from Acquisition import aq_inner
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-from Products.CMFCore.utils import getToolByName
-
-from plone.app.portlets.portlets import base
-from plone.portlets.interfaces import IPortletDataProvider
-
-from plone.memoize.compress import xhtml_compress
-from plone.memoize import ram
-from plone.memoize.instance import memoize
 from plone.app.portlets.cache import render_cachekey
+from plone.app.portlets.portlets import base
+from plone.memoize import ram
+from plone.memoize.compress import xhtml_compress
+from plone.memoize.instance import memoize
+from plone.portlets.interfaces import IPortletDataProvider
+from Products.CMFCore.utils import getToolByName
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from types import StringTypes
+from zope.interface import implements
+
 
 class IMyGroupsPortlet(IPortletDataProvider):
     """A portlet
@@ -24,6 +22,7 @@ class IMyGroupsPortlet(IPortletDataProvider):
     data that is being rendered and the portlet assignment itself are the
     same.
     """
+
 
 class Assignment(base.Assignment):
     """Portlet assignment.
@@ -78,7 +77,7 @@ class Renderer(base.Renderer):
     @memoize
     def _data(self):
         """
-        Return the catalog brains of all accessible groupspaces.        
+        Return the catalog brains of all accessible groupspaces.
         """
         context = aq_inner(self.context)
 
@@ -87,11 +86,10 @@ class Renderer(base.Renderer):
         allowed = self._getUserAndGroupIds()
         if allowed == []:
             return []
-            
+
         return catalog(portal_type='GroupSpace',
                        allowedLocalUsersAndGroups=allowed,
                        sort_on='sortable_title')
-
 
     def _getUserAndGroupIds(self):
         """
@@ -120,7 +118,8 @@ class Renderer(base.Renderer):
             if type(group) in StringTypes:
                 allowed.append('group:%s' % group)
         return allowed
-        
+
+
 class AddForm(base.NullAddForm):
     """Portlet add form.
 
