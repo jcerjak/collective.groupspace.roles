@@ -1,0 +1,81 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2011-05-05 14:06+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Preferred-Encodings: utf-8 latin1\n"
+
+#: ./browser/groupspace_roles.pt:32
+msgid "Search for user or group"
+msgstr "Benutzer oder Gruppe suchen"
+
+#. Default: "Groups"
+#: ./portlets/mygroupsportlet.pt:9
+msgid "box_groups"
+msgstr "Gruppen"
+
+#. Default: "Search"
+#: ./browser/groupspace_roles.pt:41
+msgid "box_search"
+msgstr "Suchen"
+
+#. Default: "A portlet which can render a listing of all GroupSpaces a user can participate in."
+#: ./profiles/default/portlets.xml
+msgid "description_my_groups_portlet"
+msgstr "Ein Portlet, das alle Gruppenräume eines Benutzers auflistet"
+
+#. Default: "You can control who can participate in this group space."
+#: ./browser/groupspace_roles.pt:21
+msgid "description_roles_control"
+msgstr "Legen Sie fest, wer in diesem Gruppenraum mitarbeiten kann."
+
+#. Default: "Roles for \"${folder}\""
+#: ./browser/groupspace_roles.pt:18
+msgid "heading_currently_assigned_roles"
+msgstr "Rollen für \"${folder}\""
+
+#. Default: "Cancel"
+#: ./browser/groupspace_roles.pt:147
+msgid "label_cancel"
+msgstr "Abbrechen"
+
+#. Default: "User/Group"
+#: ./browser/groupspace_roles.pt:60
+msgid "label_name"
+msgstr "Benutzer/Gruppe"
+
+#. Default: "Save"
+#: ./browser/groupspace_roles.pt:146
+msgid "label_save"
+msgstr "Speichern"
+
+#. Default: "Send an email notification"
+#: ./browser/groupspace_roles.pt:130
+msgid "label_send_email_notification"
+msgstr "Benachrichtigung per Email versenden"
+
+#. Default: "You need to set your email address in the preferences in order to send messages."
+#: ./browser/groupspace_roles.pt:124
+msgid "no_email_in_preferences"
+msgstr "Um Emails versenden zu können, müssen Sie Ihre eigene Email-Adresse unter \"Meine Einstellungen\" angeben."
+
+#. Default: "Current roles permissions"
+#: ./browser/groupspace_roles.pt:50
+msgid "summary_assigned_roles"
+msgstr "Derzeitige Rollen-Berechtigungen"
+
+#. Default: "Can manage"
+#: ./localroles.py:44
+msgid "title_can_manage"
+msgstr "Kann verwalten"
+
+#. Default: "My Groups"
+#: ./profiles/default/portlets.xml
+msgid "title_my_groups_portlet"
+msgstr "Meine Gruppen"
+
