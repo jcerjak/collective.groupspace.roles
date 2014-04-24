@@ -41,7 +41,7 @@ class RolesView(SharingView):
     so we return False in the update_inherit and update_role_settings methods.
     """
 
-    template = ViewPageTemplateFile('groupspace_roles.pt')
+    template = index = ViewPageTemplateFile('groupspace_roles.pt')
 
     def update_inherit(self, status=True, reindex=True):
         """

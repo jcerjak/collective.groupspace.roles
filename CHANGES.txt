@@ -1,7 +1,11 @@
 1.0.4dev (unreleased)
 =====================
 
+- use also 'index' attribute for specifying the RolesView template (for Plone 4.3
+  compatibility) (jcerjak)
+
 - pep8/pylint cleanup, reorganize imports (jcerjak)
+
 
 1.0.3 (2010-07-02)
 ==================
